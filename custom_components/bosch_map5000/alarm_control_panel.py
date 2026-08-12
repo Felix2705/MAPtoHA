@@ -4,14 +4,10 @@ from typing import Any
 from homeassistant.components.alarm_control_panel import (
     AlarmControlPanelEntity,
     AlarmControlPanelEntityFeature,
+    AlarmControlPanelState,
     CodeFormat,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    STATE_ALARM_ARMED_AWAY,
-    STATE_ALARM_DISARMED,
-    STATE_ALARM_TRIGGERED,
-)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -87,11 +83,11 @@ class MAP5000Area(CoordinatorEntity, AlarmControlPanelEntity):
         is_alarm = area.get("alarm", False)
 
         if is_alarm:
-            return STATE_ALARM_TRIGGERED
+            return AlarmControlPanelState.TRIGGERED
         if is_armed:
-            return STATE_ALARM_ARMED_AWAY
+            return AlarmControlPanelState.ARMED_AWAY
             
-        return STATE_ALARM_DISARMED
+        return AlarmControlPanelState.DISARMED
 
     async def async_alarm_arm_away(self, code: str | None = None) -> None:
         """Send arm away command."""
