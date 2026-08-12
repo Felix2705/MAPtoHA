@@ -1,0 +1,47 @@
+arm_area:
+  name: Arm Area
+  description: Arm a specific MAP5000 area.
+  fields:
+    entity_id:
+      name: Entity
+      description: The alarm control panel entity representing the area.
+      required: true
+      selector:
+        entity:
+          domain: alarm_control_panel
+
+disarm_area:
+  name: Disarm Area
+  description: Disarm a specific MAP5000 area.
+  fields:
+    entity_id:
+      name: Entity
+      description: The alarm control panel entity representing the area.
+      required: true
+      selector:
+        entity:
+          domain: alarm_control_panel
+
+bypass_device:
+  name: Bypass Device
+  description: Bypass a specific MAP5000 device.
+  fields:
+    entity_id:
+      name: Entity
+      description: The device entity to bypass.
+      required: true
+      selector:
+        entity:
+          domain: binary_sensor
+          
+start_walktest:
+  name: Start Walktest
+  description: Start a walktest for a specific area.
+  fields:
+    entity_id:
+      name: Entity
+      description: The alarm control panel entity representing the area.
+      required: true
+      selector:
+        entity:
+          domain: alarm_control_panel
