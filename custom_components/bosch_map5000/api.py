@@ -192,4 +192,7 @@ class MAP5000Client:
 
     async def execute_command(self, endpoint: str, command: str) -> Dict[str, Any]:
         """Execute a specific command on an endpoint."""
-        return await self.request("POST", endpoint, {"command": command})
+        # Ensure leading slash
+        if not endpoint.startswith("/"):
+            endpoint = f"/{endpoint}"
+        return await self.request("POST", endpoint, {"@cmd": command})
