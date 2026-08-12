@@ -51,9 +51,6 @@ class MAP5000DeviceSensor(CoordinatorEntity, BinarySensorEntity):
         # Name from ZIP if available, else fallback
         self._attr_name = coordinator.names_mapping.get(siid, device_data.get("name", f"Device {siid}"))
         
-        # We assign generic window/door or motion based on capabilities if we could parse it
-        self._attr_device_class = BinarySensorDeviceClass.MOTION
-
         self._attr_device_info = {
             "identifiers": {(DOMAIN, self._siid)},
             "name": self._attr_name,
@@ -61,6 +58,52 @@ class MAP5000DeviceSensor(CoordinatorEntity, BinarySensorEntity):
             "model": "MAP5000 Device",
             "via_device": (DOMAIN, coordinator.config_entry.entry_id),
         }
+
+    def _determine_device_class(self, device_data: dict, name: str) -> BinarySensorDeviceClass:
+        """Determine binary sensor device class strictly from MAP5000 @self URL, @type array, and name."""
+        types_str = " ".join(device_data.get("@type", [])).lower()
+        self_url = device_data.get("@self", "").lower()
+        name_lower = name.lower()
+
+        # Combined technical identifier string from API
+        tech_id = f"{types_str} {self_url}"
+
+        # 1. Fire / Smoke Detectors (REST-API: IN.fireDetector.1 or /fireDetector in URL)
+        if "firedetector" in tech_id or "fire" in name_lower or "rauch" in name_lower or "bm_" in name_lower:
+            return BinarySensorDeviceClass.SMOKE
+
+        # 2. Tamper / Sabotage (REST-API: tamper in URL or type)
+        if "tamper" in tech_id or "sabotage" in name_lower:
+            return BinarySensorDeviceClass.TAMPER
+
+        # 3. Power Mains (REST-API: IN.mains.1 or /mains in URL)
+        if "mains" in tech_id or "ac" in name_lower or "netz" in name_lower:
+            return BinarySensorDeviceClass.POWER
+
+        # 4. Battery (REST-API: IN.battery.1 or /battery in URL)
+        if "battery" in tech_id or "batterie" in name_lower:
+            return BinarySensorDeviceClass.BATTERY
+
+        # 5. Faults / Troubles (REST-API: IN.groundFault.1 or batteryCharger)
+        if "groundfault" in tech_id or "batterycharger" in tech_id or "erdung" in name_lower or "lade" in name_lower:
+            return BinarySensorDeviceClass.PROBLEM
+
+        # 6. Connectivity / Gateways
+        if "gateway" in tech_id:
+            return BinarySensorDeviceClass.CONNECTIVITY
+
+        # 7. Door / Window Contacts
+        if "tür" in name_lower or "door" in name_lower or "fenster" in name_lower or "window" in name_lower or "kontakt" in name_lower:
+            return BinarySensorDeviceClass.DOOR
+
+        # Default fallback for points / motion detectors
+        return BinarySensorDeviceClass.MOTION
+
+    @property
+    def device_class(self) -> BinarySensorDeviceClass | None:
+        """Return the class of this binary sensor."""
+        device_data = self.coordinator.devices.get(self._siid, {})
+        return self._determine_device_class(device_data, self._attr_name)
 
     @property
     def is_on(self) -> bool:
