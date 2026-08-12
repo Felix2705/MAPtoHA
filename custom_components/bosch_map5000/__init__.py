@@ -1,5 +1,6 @@
 """The Bosch MAP5000 integration."""
 import logging
+import os
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME, CONF_VERIFY_SSL, Platform
