@@ -42,14 +42,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     names_mapping = {}
     
     if zip_path:
-        # Resolve path: handle relative paths, leading slashes, etc.
-        if not os.path.isabs(zip_path):
-            zip_path = hass.config.path(zip_path)
-            
-        LOGGER.info("Attempting to parse MAP5000 ZIP file at: %s", zip_path)
+        config_dir = hass.config.config_dir
+        LOGGER.info("Configuring MAP5000 Name Parser: path='%s', config_dir='%s'", zip_path, config_dir)
             
         def _parse():
-            return parse_map5000_zip(zip_path, zip_password)
+            return parse_map5000_file(zip_path, zip_password, base_config_dir=config_dir)
             
         names_mapping = await hass.async_add_executor_job(_parse)
         
