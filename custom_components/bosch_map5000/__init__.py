@@ -10,7 +10,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import MAP5000Client
 from .const import CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL, DOMAIN, CONF_ZIP_PATH, CONF_ZIP_PASSWORD
 from .coordinator import MAP5000DataUpdateCoordinator
-from .parser import parse_map5000_zip
+from .parser import parse_map5000_file
 
 LOGGER = logging.getLogger(__name__)
 
