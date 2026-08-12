@@ -8,8 +8,10 @@ CONF_POLL_INTERVAL = "poll_interval"
 DEFAULT_POLL_INTERVAL = 30
 DEFAULT_PORT = 443
 
-CONF_ZIP_PATH = "zip_path"
-CONF_ZIP_PASSWORD = "zip_password"
+CONF_ZIP_PATH = "file_path"
+CONF_FILE_PATH = "file_path"
+CONF_ZIP_PASSWORD = "file_password"
+CONF_FILE_PASSWORD = "file_password"
 
 # API Resources
 RESOURCE_DESC = "/desc"

@@ -1,0 +1,38 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bosch MAP5000 Alarm System",
+        "description": "Enter the connection details for your MAP5000 panel and optionally the path to your export file (.xml or .zip).",
+        "data": {
+          "host": "IP Address / Hostname",
+          "port": "Port",
+          "username": "Username",
+          "password": "Password",
+          "verify_ssl": "Verify SSL Certificate",
+          "poll_interval": "Polling Interval (seconds)",
+          "file_path": "Path to XML/ZIP export file (e.g. /config/ld_all_cfg_001.xml)",
+          "file_password": "Password (only needed if ZIP is password protected)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Connection to MAP5000 failed. Check IP address and network.",
+      "invalid_auth": "Authentication failed. Check username and password.",
+      "unknown": "Unexpected error while connecting."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Adjust MAP5000 Options",
+        "description": "Here you can set the path to your plain name export file (.xml or .zip).",
+        "data": {
+          "file_path": "Path to XML/ZIP export file (e.g. /config/ld_all_cfg_001.xml)",
+          "file_password": "Password (only needed if ZIP is password protected)",
+          "poll_interval": "Polling Interval (seconds)"
+        }
+      }
+    }
+  }
+}
