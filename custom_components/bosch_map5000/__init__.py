@@ -33,16 +33,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         session=session,
     )
     
-    poll_interval = entry.data.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
+    poll_interval = entry.options.get(CONF_POLL_INTERVAL, entry.data.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL))
     
-    # Parse names from ZIP if provided
-    zip_path = entry.data.get(CONF_ZIP_PATH)
-    zip_password = entry.data.get(CONF_ZIP_PASSWORD)
+    # Parse names from ZIP if provided (check options first, then data)
+    zip_path = entry.options.get(CONF_ZIP_PATH, entry.data.get(CONF_ZIP_PATH, ""))
+    zip_password = entry.options.get(CONF_ZIP_PASSWORD, entry.data.get(CONF_ZIP_PASSWORD, ""))
     names_mapping = {}
-    if zip_path and zip_password:
-        # Resolve to absolute path relative to config dir if not absolute
-        if not zip_path.startswith("/") and not zip_path[1:3] == ":\\":
+    
+    if zip_path:
+        # Resolve path: handle relative paths, leading slashes, etc.
+        if not os.path.isabs(zip_path):
             zip_path = hass.config.path(zip_path)
+            
+        LOGGER.info("Attempting to parse MAP5000 ZIP file at: %s", zip_path)
             
         def _parse():
             return parse_map5000_zip(zip_path, zip_password)
@@ -53,6 +56,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     # Fetch initial data
     await coordinator.async_config_entry_first_refresh()
+
+    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
@@ -67,3 +72,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
+
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload config entry when options are updated."""
+    await hass.config_entries.async_reload(entry.entry_id)
