@@ -36,9 +36,23 @@ class MAP5000DataUpdateCoordinator(DataUpdateCoordinator):
             incidents_data = await self.client.get_incidents()
 
             # Process responses safely
-            self.areas = self._parse_resource_list(areas_data)
-            self.devices = self._parse_resource_list(devices_data)
-            self.incidents = self._parse_resource_list(incidents_data)
+            new_areas = self._parse_resource_list(areas_data)
+            new_devices = self._parse_resource_list(devices_data)
+            new_incidents = self._parse_resource_list(incidents_data)
+
+            # If we previously had devices/areas and API suddenly returns empty lists (e.g. during panel reboot/startup),
+            # treat it as a temporary update failure instead of clearing all devices.
+            if self.devices and not new_devices:
+                LOGGER.warning("MAP5000 API returned empty device list (panel rebooting?). Preserving previous state.")
+                raise UpdateFailed("MAP5000 API returned empty device list during panel startup")
+
+            if self.areas and not new_areas:
+                LOGGER.warning("MAP5000 API returned empty areas list (panel rebooting?). Preserving previous state.")
+                raise UpdateFailed("MAP5000 API returned empty areas list during panel startup")
+
+            self.areas = new_areas
+            self.devices = new_devices
+            self.incidents = new_incidents
 
             return {
                 "areas": self.areas,
@@ -49,6 +63,8 @@ class MAP5000DataUpdateCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"Authentication failed: {err}") from err
         except MAP5000ConnectionError as err:
             raise UpdateFailed(f"Error communicating with MAP5000: {err}") from err
+        except UpdateFailed:
+            raise
         except Exception as err:
             raise UpdateFailed(f"Unexpected error: {err}") from err
             

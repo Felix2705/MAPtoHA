@@ -81,6 +81,11 @@ class MAP5000ChimeSwitch(CoordinatorEntity, SwitchEntity):
         }
 
     @property
+    def available(self) -> bool:
+        """Return True if chime area is available."""
+        return self.coordinator.last_update_success and self._siid in self.coordinator.areas
+
+    @property
     def is_on(self) -> bool:
         """Return true if the chime is on."""
         area = self.coordinator.areas.get(self._siid, {})
@@ -122,6 +127,11 @@ class MAP5000DeviceEnableSwitch(CoordinatorEntity, SwitchEntity):
         }
 
     @property
+    def available(self) -> bool:
+        """Return True if device is available."""
+        return self.coordinator.last_update_success and self._siid in self.coordinator.devices
+
+    @property
     def is_on(self) -> bool:
         """Return true if the device is enabled."""
         dev = self.coordinator.devices.get(self._siid, {})
@@ -161,6 +171,11 @@ class MAP5000OutputSwitch(CoordinatorEntity, SwitchEntity):
             "model": "MAP5000 Output",
             "via_device": (DOMAIN, coordinator.config_entry.entry_id),
         }
+
+    @property
+    def available(self) -> bool:
+        """Return True if output device is available."""
+        return self.coordinator.last_update_success and self._siid in self.coordinator.devices
 
     @property
     def is_on(self) -> bool:

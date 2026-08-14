@@ -109,6 +109,11 @@ class MAP5000DeviceSensor(CoordinatorEntity, BinarySensorEntity):
         return self._determine_device_class(device_data, self._attr_name)
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return self.coordinator.last_update_success and self._siid in self.coordinator.devices
+
+    @property
     def is_on(self) -> bool:
         """Return true if the binary sensor is on (active/alarm)."""
         device = self.coordinator.devices.get(self._siid, {})

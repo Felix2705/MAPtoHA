@@ -73,6 +73,11 @@ class MAP5000Area(CoordinatorEntity, AlarmControlPanelEntity):
         }
 
     @property
+    def available(self) -> bool:
+        """Return True if area entity is available."""
+        return self.coordinator.last_update_success and self._siid in self.coordinator.areas
+
+    @property
     def state(self) -> str | None:
         """Return the state of the device."""
         area = self.coordinator.areas.get(self._siid, {})
