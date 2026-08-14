@@ -18,6 +18,8 @@ async def async_setup_entry(
     """Set up Bosch MAP5000 binary sensors."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
 
+    added_siids = set()
+
     # Add panel connectivity binary sensor
     if "panel_connectivity" not in added_siids:
         async_add_entities([MAP5000ConnectionBinarySensor(coordinator)])
