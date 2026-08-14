@@ -18,7 +18,10 @@ async def async_setup_entry(
     """Set up Bosch MAP5000 binary sensors."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
 
-    added_siids = set()
+    # Add panel connectivity binary sensor
+    if "panel_connectivity" not in added_siids:
+        async_add_entities([MAP5000ConnectionBinarySensor(coordinator)])
+        added_siids.add("panel_connectivity")
 
     def _add_new_entities():
         new_entities = []
@@ -111,3 +114,26 @@ class MAP5000DeviceSensor(CoordinatorEntity, BinarySensorEntity):
         device = self.coordinator.devices.get(self._siid, {})
         # Map active/alarm state based on opState
         return device.get("active", False)
+
+
+class MAP5000ConnectionBinarySensor(CoordinatorEntity, BinarySensorEntity):
+    """Binary Sensor for MAP5000 Panel Connectivity."""
+
+    _attr_has_entity_name = True
+    _attr_name = "Verbindung"
+    _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
+
+    def __init__(self, coordinator):
+        """Initialize the connectivity binary sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_connectivity"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
+            "name": "Bosch MAP5000 Panel",
+            "manufacturer": "Bosch",
+        }
+
+    @property
+    def is_on(self) -> bool:
+        """Return true if connected to panel."""
+        return self.coordinator.last_update_success
